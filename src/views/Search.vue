@@ -5,7 +5,11 @@
       <div class="input_wrpr col-6">
         <q-input square filled v-model="input" label="Enter city">
           <template v-if="input" v-slot:append>
-            <q-icon name="clear" @click.stop="input = null" class="cursor-pointer" />
+            <q-icon
+              name="clear"
+              @click.stop="input = null"
+              class="cursor-pointer"
+            />
           </template>
         </q-input>
       </div>
@@ -30,24 +34,45 @@
 </template>
 
 <script>
-import countries from "../assets/countries.json";
-// countries = JSON.parse(countries);
-
 export default {
   name: "Search",
   data: function() {
     return {
       input: "",
       currentWeather: undefined,
-      cities: undefined
+      lat: "",
+      lon: "",
+      sessionToken: undefined
     };
   },
+  watch: {
+    input() {
+      this.predictCity();
+    }
+  },
   methods: {
-    async fetchWeatherForCity() {
+    async predictCity() {
+      let key = ***REMOVED***;
+      let url =
+        "https://maps.googleapis.com/maps/api/place/autocomplete/json?key=" +
+        key +
+        "&input=" +
+        this.input +
+        "&sessiontoken=" +
+        this.sessionToken;
+      let response = await fetch(url);
+      if (response.ok) {
+        let predictResponse = await response.json();
+        console.log(predictResponse);
+      }
+    },
+    async fetchWeather() {
       let apiKey = ***REMOVED***;
       let url =
-        "https://api.openweathermap.org/data/2.5/weather?q=" +
-        this.input +
+        "https://api.openweathermap.org/data/2.5/weather?lat=" +
+        this.lat +
+        "&lon=" +
+        this.lon +
         "&appid=" +
         apiKey;
       let response = await fetch(url);
@@ -56,25 +81,19 @@ export default {
       }
     }
   },
-  computed: {
-    cityPredictions() {
-      if (this.input) {
-        return this.cities.filter(city =>
-          city.toLowerCase().startsWith(this.input)
-        );
-        // return binarySearch(this.cities, this.input);
-      }
-      return null;
-    }
-  },
+  computed: {},
   created() {
-    let cities = [];
-    for (let country in countries) {
-      for (let i = 0; i < country.length; i++) {
-        if (countries[country][i]) cities.push(countries[country][i]);
-      }
+    function generateToken() {
+      return (
+        Math.random()
+          .toString(36)
+          .substring(2, 15) +
+        Math.random()
+          .toString(36)
+          .substring(2, 15)
+      );
     }
-    this.cities = cities;
+    this.sessionToken = generateToken();
   }
 };
 </script>
