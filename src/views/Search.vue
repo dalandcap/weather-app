@@ -3,21 +3,28 @@
     <h2 class="text-center">What's the weather like in...</h2>
     <div class="row justify-center q-gutter-md">
       <div class="input_wrpr col-6">
-        <q-input square filled v-model="input" label="Enter city">
-          <template v-if="input" v-slot:append>
+        <q-input
+          square
+          filled
+          v-on:keyup="predictCityThrottle"
+          v-model.trim="queryCity"
+          label="Enter city"
+        >
+          <template v-if="queryCity" v-slot:append>
             <q-icon
               name="clear"
-              @click.stop="input = null"
+              @click.stop="selectedCity = city"
               class="cursor-pointer"
             />
           </template>
         </q-input>
       </div>
+
       <div class="list_wrpr col-6">
         <q-list style="width:100% !important">
           <q-item
-            @click="fetchWeatherForCity"
-            v-for="city in cityPredictions"
+            @click="selectedCity = city"
+            v-for="city in citySuggestions"
             :key="city"
             clickable
             v-ripple
@@ -34,55 +41,86 @@
 </template>
 
 <script>
+import _ from 'lodash';
 export default {
-  name: "Search",
+  name: 'Search',
   data: function() {
     return {
-      input: "",
+      queryCity: '',
+      citySuggestions: [],
+      selectedCity: '',
       currentWeather: undefined,
-      lat: "",
-      lon: "",
+      lat: '',
+      lon: '',
       sessionToken: undefined
     };
   },
-  watch: {
-    input() {
-      this.predictCity();
-    }
-  },
+  watch: {},
   methods: {
-    async predictCity() {
-      let key = ***REMOVED***;
-      let url =
-        "https://maps.googleapis.com/maps/api/place/autocomplete/json?key=" +
-        key +
-        "&input=" +
-        this.input +
-        "&sessiontoken=" +
-        this.sessionToken;
-      let response = await fetch(url, {
-        mode: "no-cors" // 'cors' by default
-      });
-      if (response.ok) {
-        let predictResponse = await response.json();
-        console.log(predictResponse);
+    predictCityThrottle: _.debounce(function() {
+      return this.predictCity();
+    }, 500),
+    getData: async function(url = '', params = {}) {
+      function getHostName(url) {
+        let match = url.match(/(http|https):\/\/(www[0-9]?\.)?(.[^/:]+)/i);
+        if (
+          match != null &&
+          match.length > 2 &&
+          typeof match[2] === 'string' &&
+          match[2].length > 0
+        ) {
+          return match[2];
+        } else {
+          return null;
+        }
       }
+      // Default options are marked with *
+      let queryString = Object.keys(params)
+        .map((key) => {
+          return (
+            encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+          );
+        })
+        .join('&');
+      let corsAnywhereProxyURL = 'https://cors-anywhere.herokuapp.com/';
+      let request = corsAnywhereProxyURL + url + '?' + queryString;
+      const response = await fetch(request, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Origin: getHostName(url)
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer' // no-referrer, *client
+      });
+      console.log(response);
+      return await response.json(); // parses JSON response into native JavaScript objects
     },
-    async fetchWeather() {
-      let apiKey = ***REMOVED***;
-      let url =
-        "https://api.openweathermap.org/data/2.5/weather?lat=" +
-        this.lat +
-        "&lon=" +
-        this.lon +
-        "&appid=" +
-        apiKey;
-      let response = await fetch(url, {
-        mode: "no-cors" // 'cors' by default
-      });
-      if (response.ok) {
-        this.currentWeather = await response.json();
-      }
+    predictCity: async function() {
+      const key = 'AIzaSyCulbP8CvJ96sr-zMlMsoGLBqWWtb-LgyA';
+      const url =
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+      let data = {
+        key: key,
+        input: this.queryCity,
+        sessiontoken: this.sessionToken,
+        types: '(cities)'
+      };
+      let json = await this.getData(url, data);
+      console.dir(json);
+      this.citySuggestions = json.predictions.map((city) => city.description);
+      return this.citySuggestions;
+    },
+    fetchWeather: async function() {
+      const apiKey = '7606c8c7410b3a6746bcfc3853e466d4';
+      const url = 'https://api.openweathermap.org/data/2.5/weather';
+      const data = {
+        lat: this.lat,
+        lon: this.lon,
+        appid: apiKey
+      };
+      let response = await this.getData(url, data);
+      return response;
     }
   },
   computed: {},
