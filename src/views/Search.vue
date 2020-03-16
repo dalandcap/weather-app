@@ -58,12 +58,13 @@ export default {
   },
   computed: {
     cityPredictions() {
-      return this.cities.filter(city => city.startsWith(this.input));
-    }
-  },
-  watch: {
-    input() {
-      this.filterCities();
+      if (this.input) {
+        return this.cities.filter(city =>
+          city.toLowerCase().startsWith(this.input)
+        );
+        // return binarySearch(this.cities, this.input);
+      }
+      return null;
     }
   },
   created() {
