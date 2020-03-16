@@ -60,7 +60,9 @@ export default {
         this.input +
         "&sessiontoken=" +
         this.sessionToken;
-      let response = await fetch(url);
+      let response = await fetch(url, {
+        mode: "no-cors" // 'cors' by default
+      });
       if (response.ok) {
         let predictResponse = await response.json();
         console.log(predictResponse);
@@ -75,7 +77,9 @@ export default {
         this.lon +
         "&appid=" +
         apiKey;
-      let response = await fetch(url);
+      let response = await fetch(url, {
+        mode: "no-cors" // 'cors' by default
+      });
       if (response.ok) {
         this.currentWeather = await response.json();
       }
