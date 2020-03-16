@@ -31,42 +31,18 @@
 
 <script>
 import countries from "../assets/countries.json";
+// countries = JSON.parse(countries);
 
 export default {
   name: "Search",
   data: function() {
     return {
-      input: undefined,
+      input: "",
       currentWeather: undefined,
-      cityPredictions: [],
-      countriesString: countries
+      cities: undefined
     };
   },
   methods: {
-    // predictCities() {
-    //   for (let country of this.countriesMemory) {
-    //     console.log(country);
-    //   }
-
-    // for (let [country, cities] of Object.entries(this.countries)) {
-    //   console.log(country, cities);
-    // }
-
-    // predictCitiesOld() {
-    //   for (let country in this.countries)
-    //     for (let city in country) {
-    //       if (city == this.input || city.startsWith(this.input)) {
-    //         // this.cityPredictions.push(city);
-    //         console.log(city);
-    //       }
-    //     }
-    // for (let i = 0; i < countries.length; i++)
-    //   for (let j = 0; j < countries.length; i++) {
-    //     if (city == this.input || city.startsWith(this.input)) {
-    //       this.cityPredictions.push(city);
-    //     }
-    // }
-    // },
     async fetchWeatherForCity() {
       let apiKey = ***REMOVED***;
       let url =
@@ -81,20 +57,23 @@ export default {
     }
   },
   computed: {
-    // countriesMemory() {
-    //   return JSON.parse(this.countriesString);
-    // }
-    // cityPredictions() {
-    //   return ["unu", "doi", "trii", "undefined"];
-    // }
+    cityPredictions() {
+      return this.cities.filter(city => city.startsWith(this.input));
+    }
   },
   watch: {
     input() {
-      // this.predictCities();
+      this.filterCities();
     }
   },
   created() {
-    console.log(JSON.parse(this.countriesString));
+    let cities = [];
+    for (let country in countries) {
+      for (let i = 0; i < country.length; i++) {
+        if (countries[country][i]) cities.push(countries[country][i]);
+      }
+    }
+    this.cities = cities;
   }
 };
 </script>
