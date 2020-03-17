@@ -11,11 +11,7 @@
           label="Enter city"
         >
           <template v-if="queryCity" v-slot:append>
-            <q-icon
-              name="clear"
-              @click.stop="queryCity = ''"
-              class="cursor-pointer"
-            />
+            <q-icon name="clear" @click.stop="clear()" class="cursor-pointer" />
           </template>
         </q-input>
       </div>
@@ -61,18 +57,27 @@ export default {
     }
   },
   methods: {
+    clear() {
+      this.selectedCity = "";
+      this.queryCity = "";
+      this.lat = "";
+      this.lon = "";
+    },
     async getCityCoords() {
-      // let cityCoords;
       let coordsObj;
-      let response = await fetch(
-        "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyCulbP8CvJ96sr-zMlMsoGLBqWWtb-LgyA&address=Haiducilor%209,%20Chisinau"
-      );
+      let key = ***REMOVED***;
+      let url =
+        "https://maps.googleapis.com/maps/api/geocode/json?key=" +
+        key +
+        "&address=" +
+        this.selectedCity;
+      let response = await fetch(url);
       if (response.ok)
         response.json().then(res => {
-          // console.log(res.results);
           coordsObj = res.results;
+          this.lat = coordsObj[0].geometry.location.lat;
+          this.lon = coordsObj[0].geometry.location.lng;
         });
-      console.log(coordsObj);
     },
     predictCityThrottle: _.debounce(function() {
       return this.predictCity();
