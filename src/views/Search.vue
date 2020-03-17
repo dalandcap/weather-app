@@ -9,6 +9,7 @@
           v-on:keyup="predictCityThrottle"
           v-model.trim="queryCity"
           label="Introdu locația"
+          class="text-center"
         >
           <template v-if="queryCity" v-slot:append>
             <q-icon name="clear" @click.stop="clear()" class="cursor-pointer" />
@@ -16,8 +17,14 @@
         </q-input>
       </div>
 
-      <div class="list_wrpr col-6">
-        <q-list style="width:100% !important">
+      <div class="list_wrpr col-6 q-mt-none">
+        <q-list
+          v-if="citySuggestions.length != 0"
+          square
+          bordered
+          separator
+          style="width:100% !important"
+        >
           <q-item
             @click="selectedCity = city"
             v-for="city in citySuggestions"
@@ -33,15 +40,15 @@
         <q-card
           v-if="currentWeather.main"
           square
-          class="my-card bg-secondary text-white q-px-lg  q-mb-xl"
+          class="my-card bg-secondary text-white q-px-lg  q-my-xl"
         >
           <q-card-section>
-            <div class="text-h2 q-mt-lg q-mb-md">
+            <div class="text-h2 q-mt-lg q-mb-sm">
               {{ currentWeather.name }}
             </div>
             <div class="text-subtitle2">CURRENT WEATHER</div>
           </q-card-section>
-
+          <q-separator dark class="q-my-lg" />
           <q-card-section>
             <p v-for="(value, key) of currentWeather.main" :key="key">
               <span class="weatherProperty">{{ key.replace(/_/g, " ") }}:</span>
@@ -78,6 +85,12 @@ export default {
     },
     selectedCity() {
       if (this.selectedCity.length > 0) this.getCityCoords();
+    },
+    "currentWeather.main": function() {
+      if (this.currentWeather.main) {
+        this.citySuggestions = [];
+        this.queryCity = "";
+      }
     }
   },
   methods: {
@@ -87,6 +100,7 @@ export default {
       this.lat = "";
       this.lon = "";
       this.currentWeather.main = undefined;
+      this.citySuggestions = [];
     },
     getCityCoords: async function() {
       let coordsObj;
