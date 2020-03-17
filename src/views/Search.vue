@@ -63,13 +63,13 @@ export default {
     }
   },
   methods: {
-    clear() {
+    clear: function() {
       this.selectedCity = "";
       this.queryCity = "";
       this.lat = "";
       this.lon = "";
     },
-    async getCityCoords() {
+    getCityCoords: async function() {
       let coordsObj;
       let key = ***REMOVED***;
       let url =
@@ -88,7 +88,7 @@ export default {
     predictCityThrottle: _.debounce(function() {
       return this.predictCity();
     }, 500),
-    async getData(url = "", params = {}) {
+    getData: async function(url = "", params = {}) {
       function getHostName(url) {
         let match = url.match(/(http|https):\/\/(www[0-9]?\.)?(.[^/:]+)/i);
         if (
