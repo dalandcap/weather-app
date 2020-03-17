@@ -42,7 +42,8 @@ export default {
       currentWeather: undefined,
       lat: "",
       lon: "",
-      sessionToken: undefined
+      sessionToken: undefined,
+      cityPredictions: []
     };
   },
   watch: {
@@ -61,8 +62,9 @@ export default {
         "&sessiontoken=" +
         this.sessionToken;
       let response = await fetch(url);
+      response.catch(err => console.log(err));
       if (response.ok) {
-        let predictResponse = await response.json();
+        let predictResponse = response.json();
         console.log(predictResponse);
       }
     },
