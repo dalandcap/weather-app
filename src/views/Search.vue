@@ -159,7 +159,7 @@ export default {
     },
     predictCityThrottle: _.debounce(function() {
       return this.predictCity();
-    }, 500),
+    }, 100),
     getCityCoords: async function() {
       let params = {
         key: this.googleMapsApiKey,
