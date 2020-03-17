@@ -3,39 +3,32 @@
     <h1 class="text-center">Cum e vremea în...</h1>
     <div class="row justify-center q-gutter-md">
       <div class="input_wrpr col-6">
-        <q-input
-          square
+        <q-select
           filled
+          use-input
+          fill-input
+          autofocus
+          input-debounce="0"
           v-on:keyup="predictCityThrottle"
-          v-model.trim="queryCity"
           label="Introdu locația"
-          class="text-center"
+          @input-value="
+            val => {
+              queryCity = val;
+            }
+          "
+          @popup-show.native="show"
+          :options="citySuggestions"
         >
-          <template v-if="queryCity" v-slot:append>
-            <q-icon name="clear" @click.stop="clear()" class="cursor-pointer" />
-          </template>
-        </q-input>
+          <!-- <template v-slot:no-option>
+            <q-item>
+              <q-item-section class="text-grey">
+                No results
+              </q-item-section>
+            </q-item>
+          </template> -->
+        </q-select>
       </div>
 
-      <div class="list_wrpr col-6 q-mt-none">
-        <q-list
-          v-if="citySuggestions.length != 0"
-          square
-          bordered
-          separator
-          style="width:100% !important"
-        >
-          <q-item
-            @click="selectedCity = city"
-            v-for="city in citySuggestions"
-            :key="city"
-            clickable
-            v-ripple
-          >
-            <q-item-section>{{ city }}</q-item-section>
-          </q-item>
-        </q-list>
-      </div>
       <div class="currentWeather col-6">
         <q-card
           v-if="currentWeather.main"
@@ -69,7 +62,7 @@ export default {
     return {
       googleMapsApiKey: ***REMOVED***,
       queryCity: "",
-      citySuggestions: [],
+      citySuggestions: undefined,
       selectedCity: "",
       currentWeather: { main: undefined },
       lat: "",
