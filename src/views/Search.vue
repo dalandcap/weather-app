@@ -33,12 +33,10 @@
         <q-card
           v-if="currentWeather.main"
           square
-          class="my-card bg-secondary text-white q-px-lg  q-mb-xl"
+          class="my-card bg-secondary text-white q-px-lg q-mb-xl"
         >
           <q-card-section>
-            <div class="text-h2 q-mt-lg q-mb-md">
-              {{ currentWeather.name }}
-            </div>
+            <div class="text-h2 q-mt-lg q-mb-md">{{ currentWeather.name }}</div>
             <div class="text-subtitle2">CURRENT WEATHER</div>
           </q-card-section>
 
@@ -60,6 +58,7 @@ export default {
   name: "Search",
   data: function() {
     return {
+      googleMapsApiKey: ***REMOVED***,
       queryCity: "",
       citySuggestions: [],
       selectedCity: "",
@@ -88,26 +87,8 @@ export default {
       this.lon = "";
       this.currentWeather.main = undefined;
     },
-    getCityCoords: async function() {
-      let coordsObj;
-      let key = ***REMOVED***;
-      let url =
-        "https://maps.googleapis.com/maps/api/geocode/json?key=" +
-        key +
-        "&address=" +
-        this.selectedCity;
-      let response = await fetch(url);
-      if (response.ok)
-        response.json().then(res => {
-          coordsObj = res.results;
-          this.lat = coordsObj[0].geometry.location.lat;
-          this.lon = coordsObj[0].geometry.location.lng;
-        });
-    },
-    predictCityThrottle: _.debounce(function() {
-      return this.predictCity();
-    }, 500),
-    getData: async function(url = "", params = {}) {
+
+    getData: async function(url = "", params = {}, proxy = false) {
       function getHostName(url) {
         let match = url.match(/(http|https):\/\/(www[0-9]?\.)?(.[^/:]+)/i);
         if (
@@ -129,35 +110,55 @@ export default {
           );
         })
         .join("&");
-      let corsAnywhereProxyURL = "https://cors-anywhere.herokuapp.com/";
-      let request = corsAnywhereProxyURL + url + "?" + queryString;
+
+      const corsAnywhereProxyURL = "https://cors-anywhere.herokuapp.com/";
+      let proxiedURL = proxy ? corsAnywhereProxyURL + url : url;
+      const proxyHeaders = {
+        "Content-Type": "application/json",
+        Origin: getHostName(url)
+      };
+
+      let request = proxiedURL + "?" + queryString;
+
       const response = await fetch(request, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Origin: getHostName(url)
-        },
+        headers: proxy ? proxyHeaders : {},
         redirect: "follow", // manual, *follow, error
         referrerPolicy: "no-referrer" // no-referrer, *client
       });
-      console.log(response);
       return await response.json(); // parses JSON response into native JavaScript objects
     },
     predictCity: async function() {
-      const key = ***REMOVED***;
       const url =
         "https://maps.googleapis.com/maps/api/place/autocomplete/json";
       let data = {
-        key: key,
+        key: this.googleMapsApiKey,
         input: this.queryCity,
         sessiontoken: this.sessionToken,
         types: "(cities)"
       };
-      let json = await this.getData(url, data);
-      console.dir(json);
+      let json = await this.getData(url, data, true);
       this.citySuggestions = json.predictions.map(city => city.description);
       return this.citySuggestions;
     },
+    predictCityThrottle: _.debounce(function() {
+      return this.predictCity();
+    }, 500),
+    getCityCoords: async function() {
+      let params = {
+        key: this.googleMapsApiKey,
+        address: this.selectedCity
+      };
+
+      let url = "https://maps.googleapis.com/maps/api/geocode/json";
+
+      let response = await this.getData(url, params, false);
+
+      let coordsObj = response.results;
+      this.lat = coordsObj[0].geometry.location.lat;
+      this.lon = coordsObj[0].geometry.location.lng;
+    },
+
     fetchWeather: async function() {
       const apiKey = ***REMOVED***;
       const url = "https://api.openweathermap.org/data/2.5/weather";
@@ -166,7 +167,7 @@ export default {
         lon: this.lon,
         appid: apiKey
       };
-      this.currentWeather = await this.getData(url, data);
+      this.currentWeather = await this.getData(url, data, false);
     }
   },
   computed: {},
