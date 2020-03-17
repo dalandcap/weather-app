@@ -11,6 +11,7 @@
           input-debounce="0"
           v-on:keyup="predictCityThrottle"
           label="Introdu locația"
+          v-model="selectedCity"
           @input-value="
             val => {
               queryCity = val;
@@ -25,7 +26,7 @@
                 No results
               </q-item-section>
             </q-item>
-          </template> -->
+          </template>-->
         </q-select>
       </div>
 
@@ -33,12 +34,10 @@
         <q-card
           v-if="currentWeather.main"
           square
-          class="my-card bg-secondary text-white q-px-lg  q-my-xl"
+          class="my-card bg-secondary text-white q-px-lg q-my-xl"
         >
           <q-card-section>
-            <div class="text-h2 q-mt-lg q-mb-sm">
-              {{ currentWeather.name }}
-            </div>
+            <div class="text-h2 q-mt-lg q-mb-sm">{{ currentWeather.name }}</div>
             <div class="text-subtitle2">CURRENT WEATHER</div>
           </q-card-section>
           <q-separator dark class="q-my-lg" />
