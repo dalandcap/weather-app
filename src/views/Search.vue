@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4 class="text-center">Cum e vremea în...</h4>
+    <h1 class="text-center">Cum e vremea în...</h1>
     <div class="row justify-center q-gutter-md">
       <div class="input_wrpr col-6">
         <q-input
@@ -8,7 +8,7 @@
           filled
           v-on:keyup="predictCityThrottle"
           v-model.trim="queryCity"
-          label="Enter city"
+          label="Introdu locația"
         >
           <template v-if="queryCity" v-slot:append>
             <q-icon name="clear" @click.stop="clear()" class="cursor-pointer" />
@@ -30,7 +30,25 @@
         </q-list>
       </div>
       <div class="currentWeather col-6">
-        <div v-for="value in currentWeather" :key="value">{{ value }}</div>
+        <q-card
+          v-if="currentWeather.main"
+          square
+          class="my-card bg-secondary text-white q-px-lg  q-mb-xl"
+        >
+          <q-card-section>
+            <div class="text-h2 q-mt-lg q-mb-md">
+              {{ currentWeather.name }}
+            </div>
+            <div class="text-subtitle2">CURRENT WEATHER</div>
+          </q-card-section>
+
+          <q-card-section>
+            <p v-for="(value, key) of currentWeather.main" :key="key">
+              <span class="weatherProperty">{{ key.replace(/_/g, " ") }}:</span>
+              {{ value }}
+            </p>
+          </q-card-section>
+        </q-card>
       </div>
     </div>
   </div>
@@ -45,7 +63,7 @@ export default {
       queryCity: "",
       citySuggestions: [],
       selectedCity: "",
-      currentWeather: undefined,
+      currentWeather: { main: undefined },
       lat: "",
       lon: "",
       sessionToken: undefined
@@ -68,6 +86,7 @@ export default {
       this.queryCity = "";
       this.lat = "";
       this.lon = "";
+      this.currentWeather.main = undefined;
     },
     getCityCoords: async function() {
       let coordsObj;
@@ -166,3 +185,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+span.weatherProperty {
+  font-weight: bold;
+  text-transform: capitalize;
+}
+</style>
