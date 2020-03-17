@@ -162,12 +162,13 @@ export default {
     fetchWeather: async function() {
       const apiKey = ***REMOVED***;
       const url = "https://api.openweathermap.org/data/2.5/weather";
-      const data = {
+      const params = {
         lat: this.lat,
         lon: this.lon,
-        appid: apiKey
+        appid: apiKey,
+        units: "metric"
       };
-      this.currentWeather = await this.getData(url, data, false);
+      this.currentWeather = await this.getData(url, params, false);
     }
   },
   computed: {},
