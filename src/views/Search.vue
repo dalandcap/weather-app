@@ -52,6 +52,12 @@ export default {
     };
   },
   watch: {
+    lat() {
+      if (this.lat && this.lon) this.fetchWeather();
+    },
+    lon() {
+      if (this.lat && this.lon) this.fetchWeather();
+    },
     selectedCity() {
       if (this.selectedCity.length > 0) this.getCityCoords();
     }
@@ -141,8 +147,7 @@ export default {
         lon: this.lon,
         appid: apiKey
       };
-      let response = await this.getData(url, data);
-      return response;
+      this.currentWeather = await this.getData(url, data);
     }
   },
   computed: {},
