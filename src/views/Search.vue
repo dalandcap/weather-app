@@ -55,8 +55,25 @@ export default {
       sessionToken: undefined
     };
   },
-  watch: {},
+  watch: {
+    selectedCity() {
+      if (this.selectedCity.length > 0) this.getCityCoords();
+    }
+  },
   methods: {
+    async getCityCoords() {
+      // let cityCoords;
+      let coordsObj;
+      let response = await fetch(
+        "https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyCulbP8CvJ96sr-zMlMsoGLBqWWtb-LgyA&address=Haiducilor%209,%20Chisinau"
+      );
+      if (response.ok)
+        response.json().then(res => {
+          // console.log(res.results);
+          coordsObj = res.results;
+        });
+      console.log(coordsObj);
+    },
     predictCityThrottle: _.debounce(function() {
       return this.predictCity();
     }, 500),
