@@ -4,6 +4,7 @@
     <div class="row justify-center q-gutter-md">
       <div class="input_wrpr col-6">
         <q-select
+          ref="SearchInputSelect"
           filled
           use-input
           autofocus
@@ -144,6 +145,7 @@ export default {
       };
       let json = await this.getData(url, data, true);
       this.citySuggestions = json.predictions.map(city => city.description);
+      this.$refs.SearchInputSelect.showPopup();
       return this.citySuggestions;
     },
     predictCityThrottle: _.debounce(function() {
