@@ -6,9 +6,7 @@
         <q-select
           filled
           use-input
-          fill-input
           autofocus
-          input-debounce="0"
           v-on:keyup="predictCityThrottle"
           label="Introdu locația"
           v-model="selectedCity"
@@ -17,7 +15,6 @@
               queryCity = val;
             }
           "
-          @popup-show.native="show"
           :options="citySuggestions"
         >
           <!-- <template v-slot:no-option>
