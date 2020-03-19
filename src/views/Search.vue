@@ -7,6 +7,8 @@
           ref="SearchInputSelect"
           filled
           use-input
+          clear-icon="close"
+          hide-selected
           autofocus
           v-on:keyup="predictCityThrottle"
           label="Introdu locația"
@@ -57,6 +59,7 @@ import {
   GOOGLE_MAPS_API_KEY,
   OPENWEATHERMAP_API_KEY
 } from "../../.env.development.js";
+
 export default {
   name: "Search",
   data: function() {
@@ -69,7 +72,7 @@ export default {
       currentWeather: {},
       lat: "",
       lon: "",
-      sessionToken: undefined
+      sessionToken: "undefined"
     };
   },
   watch: {
