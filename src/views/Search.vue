@@ -53,15 +53,20 @@
 
 <script>
 import _ from "lodash";
+import {
+  GOOGLE_MAPS_API_KEY,
+  OPENWEATHERMAP_API_KEY
+} from "../../.env.development.js";
 export default {
   name: "Search",
   data: function() {
     return {
-      googleMapsApiKey: ***REMOVED***,
+      googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+      openWeatherMapApiKey: OPENWEATHERMAP_API_KEY,
       queryCity: "",
-      citySuggestions: undefined,
+      citySuggestions: [],
       selectedCity: "",
-      currentWeather: { main: undefined },
+      currentWeather: {},
       lat: "",
       lon: "",
       sessionToken: undefined
@@ -167,12 +172,11 @@ export default {
     },
 
     fetchWeather: async function() {
-      const apiKey = ***REMOVED***;
       const url = "https://api.openweathermap.org/data/2.5/weather";
       const params = {
         lat: this.lat,
         lon: this.lon,
-        appid: apiKey,
+        appid: this.openWeatherMapApiKey,
         units: "metric"
       };
       this.currentWeather = await this.getData(url, params, false);
