@@ -182,22 +182,46 @@ export default {
         appid: this.openWeatherMapApiKey,
         units: "metric"
       };
+      this.$refs.SearchInputSelect.blur();
       this.currentWeather = await this.getData(url, params, false);
+    },
+    generateToken: function() {
+      return (
+        "_" +
+        Math.random()
+          .toString(36)
+          .substr(2, 16)
+      );
+    },
+    setCookie: function(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+      var expires = "expires=" + d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    },
+    getCookie: function(cname) {
+      var name = cname + "=";
+      var decodedCookie = decodeURIComponent(document.cookie);
+      var ca = decodedCookie.split(";");
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == " ") {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return null;
     }
   },
   computed: {},
   created() {
-    function generateToken() {
-      return (
-        Math.random()
-          .toString(36)
-          .substring(2, 15) +
-        Math.random()
-          .toString(36)
-          .substring(2, 15)
-      );
-    }
-    this.sessionToken = generateToken();
+    this.sessionToken =
+      this.getCookie("sessionToken") ||
+      this.setCookie("sessionToken", this.generateToken(), 3);
+
+    console.log(document.cookie);
   }
 };
 </script>
