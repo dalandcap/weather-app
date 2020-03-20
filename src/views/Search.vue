@@ -82,9 +82,13 @@ export default {
         this.getCityCoords();
         this.pastSearches.unshift(this.selectedCity);
         if (this.pastSearches.length > 3) this.pastSearches.pop();
-        console.log(this.pastSearches);
-        // this.setCookie("city_1", this.pastSearches[0], 10);
       }
+    },
+    pastSearches() {
+      this.setCookie("past-searches", JSON.stringify(this.pastSearches), 10);
+      if (this.citySuggestions.length == 0)
+        this.citySuggestions = this.pastSearches;
+      this.$refs.SearchInputSelect.showPopup();
     },
     "currentWeather.main": function() {
       if (this.currentWeather.main) {
@@ -154,8 +158,8 @@ export default {
       };
       let json = await this.getData(url, data, true);
       this.citySuggestions = json.predictions.map(city => city.description);
+      this.citySuggestions = this.citySuggestions.concat(this.pastSearches);
       this.$refs.SearchInputSelect.showPopup();
-      return this.citySuggestions;
     },
     predictCityThrottle: _.debounce(function() {
       return this.predictCity();
@@ -174,7 +178,6 @@ export default {
       this.lat = coordsObj[0].geometry.location.lat;
       this.lon = coordsObj[0].geometry.location.lng;
     },
-
     fetchWeather: async function() {
       const url = "https://api.openweathermap.org/data/2.5/weather";
       const params = {
@@ -185,6 +188,7 @@ export default {
       };
       this.$refs.SearchInputSelect.blur();
       this.currentWeather = await this.getData(url, params, false);
+      this.citySuggestions = this.pastSearches;
     },
     generateToken: function() {
       return (
@@ -220,10 +224,11 @@ export default {
     this.sessionToken =
       this.getCookie("sessionToken") ||
       this.setCookie("sessionToken", this.generateToken(), 3);
-    console.log(this.getCookie("city_1"));
+    // console.log(JSON.parse(this.getCookie("past-searches")));
+    this.pastSearches = JSON.parse(this.getCookie("past-searches"));
   },
   beforeDestroy() {
-    this.setCookie("city_1", this.pastSearches[0], 10);
+    // this.setCookie("past-searches", JSON.stringify(this.pastSearches), 10);
   }
 };
 </script>
