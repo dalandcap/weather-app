@@ -20,13 +20,6 @@
           "
           :options="citySuggestions"
         >
-          <!-- <template v-slot:no-option>
-            <q-item>
-              <q-item-section class="text-grey">
-                No results
-              </q-item-section>
-            </q-item>
-          </template>-->
         </q-select>
       </div>
 
@@ -72,7 +65,9 @@ export default {
       currentWeather: {},
       lat: "",
       lon: "",
-      sessionToken: "undefined"
+      sessionToken: "",
+      lastSelectedCity: "",
+      pastSearches: []
     };
   },
   watch: {
@@ -83,7 +78,13 @@ export default {
       if (this.lat && this.lon) this.fetchWeather();
     },
     selectedCity() {
-      if (this.selectedCity.length > 0) this.getCityCoords();
+      if (this.selectedCity.length > 0) {
+        this.getCityCoords();
+        this.pastSearches.unshift(this.selectedCity);
+        if (this.pastSearches.length > 3) this.pastSearches.pop();
+        console.log(this.pastSearches);
+        // this.setCookie("city_1", this.pastSearches[0], 10);
+      }
     },
     "currentWeather.main": function() {
       if (this.currentWeather.main) {
@@ -215,13 +216,14 @@ export default {
       return null;
     }
   },
-  computed: {},
   created() {
     this.sessionToken =
       this.getCookie("sessionToken") ||
       this.setCookie("sessionToken", this.generateToken(), 3);
-
-    console.log(document.cookie);
+    console.log(this.getCookie("city_1"));
+  },
+  beforeDestroy() {
+    this.setCookie("city_1", this.pastSearches[0], 10);
   }
 };
 </script>
