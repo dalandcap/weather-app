@@ -1,12 +1,12 @@
 module.exports = {
   configureWebpack: {
-    devtool: "source-map"
+    devtool: "source-map",
   },
   pluginOptions: {
     quasar: {
       importStrategy: "kebab",
-      rtlSupport: false
-    }
+      rtlSupport: false,
+    },
   },
-  transpileDependencies: ["quasar"]
+  transpileDependencies: ["quasar"],
 };

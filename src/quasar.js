@@ -19,5 +19,5 @@ Vue.use(Quasar, {
     /* not needed if importStrategy is not 'manual' */
   },
   plugins: {},
-  iconSet: iconSet
+  iconSet: iconSet,
 });

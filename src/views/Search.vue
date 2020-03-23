@@ -14,7 +14,7 @@
           label="Introdu locația"
           v-model="selectedCity"
           @input-value="
-            val => {
+            (val) => {
               queryCity = val;
             }
           "
@@ -50,12 +50,12 @@
 import _ from "lodash";
 import {
   GOOGLE_MAPS_API_KEY,
-  OPENWEATHERMAP_API_KEY
+  OPENWEATHERMAP_API_KEY,
 } from "../../.env.development.js";
 
 export default {
   name: "Search",
-  data: function() {
+  data: function () {
     return {
       googleMapsApiKey: GOOGLE_MAPS_API_KEY,
       openWeatherMapApiKey: OPENWEATHERMAP_API_KEY,
@@ -67,7 +67,7 @@ export default {
       lon: "",
       sessionToken: "",
       lastSelectedCity: "",
-      pastSearches: []
+      pastSearches: [],
     };
   },
   watch: {
@@ -90,15 +90,15 @@ export default {
         this.citySuggestions = this.pastSearches;
       this.$refs.SearchInputSelect.showPopup();
     },
-    "currentWeather.main": function() {
+    "currentWeather.main": function () {
       if (this.currentWeather.main) {
         this.citySuggestions = [];
         this.queryCity = "";
       }
-    }
+    },
   },
   methods: {
-    clear: function() {
+    clear: function () {
       this.selectedCity = "";
       this.queryCity = "";
       this.lat = "";
@@ -107,7 +107,7 @@ export default {
       this.citySuggestions = [];
     },
 
-    getData: async function(url = "", params = {}, proxy = false) {
+    getData: async function (url = "", params = {}, proxy = false) {
       function getHostName(url) {
         let match = url.match(/(http|https):\/\/(www[0-9]?\.)?(.[^/:]+)/i);
         if (
@@ -123,7 +123,7 @@ export default {
       }
       // Default options are marked with *
       let queryString = Object.keys(params)
-        .map(key => {
+        .map((key) => {
           return (
             encodeURIComponent(key) + "=" + encodeURIComponent(params[key])
           );
@@ -134,7 +134,7 @@ export default {
       let proxiedURL = proxy ? corsAnywhereProxyURL + url : url;
       const proxyHeaders = {
         "Content-Type": "application/json",
-        Origin: getHostName(url)
+        Origin: getHostName(url),
       };
 
       let request = proxiedURL + "?" + queryString;
@@ -143,31 +143,31 @@ export default {
         method: "GET",
         headers: proxy ? proxyHeaders : {},
         redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer" // no-referrer, *client
+        referrerPolicy: "no-referrer", // no-referrer, *client
       });
       return await response.json(); // parses JSON response into native JavaScript objects
     },
-    predictCity: async function() {
+    predictCity: async function () {
       const url =
         "https://maps.googleapis.com/maps/api/place/autocomplete/json";
       let data = {
         key: this.googleMapsApiKey,
         input: this.queryCity,
         sessiontoken: this.sessionToken,
-        types: "(cities)"
+        types: "(cities)",
       };
       let json = await this.getData(url, data, true);
-      this.citySuggestions = json.predictions.map(city => city.description);
+      this.citySuggestions = json.predictions.map((city) => city.description);
       this.citySuggestions = this.citySuggestions.concat(this.pastSearches);
       this.$refs.SearchInputSelect.showPopup();
     },
-    predictCityThrottle: _.debounce(function() {
+    predictCityThrottle: _.debounce(function () {
       return this.predictCity();
     }, 100),
-    getCityCoords: async function() {
+    getCityCoords: async function () {
       let params = {
         key: this.googleMapsApiKey,
-        address: this.selectedCity
+        address: this.selectedCity,
       };
 
       let url = "https://maps.googleapis.com/maps/api/geocode/json";
@@ -178,33 +178,28 @@ export default {
       this.lat = coordsObj[0].geometry.location.lat;
       this.lon = coordsObj[0].geometry.location.lng;
     },
-    fetchWeather: async function() {
+    fetchWeather: async function () {
       const url = "https://api.openweathermap.org/data/2.5/weather";
       const params = {
         lat: this.lat,
         lon: this.lon,
         appid: this.openWeatherMapApiKey,
-        units: "metric"
+        units: "metric",
       };
       this.$refs.SearchInputSelect.blur();
       this.currentWeather = await this.getData(url, params, false);
       this.citySuggestions = this.pastSearches;
     },
-    generateToken: function() {
-      return (
-        "_" +
-        Math.random()
-          .toString(36)
-          .substr(2, 16)
-      );
+    generateToken: function () {
+      return "_" + Math.random().toString(36).substr(2, 16);
     },
-    setCookie: function(cname, cvalue, exdays) {
+    setCookie: function (cname, cvalue, exdays) {
       var d = new Date();
       d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
       var expires = "expires=" + d.toUTCString();
       document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
     },
-    getCookie: function(cname) {
+    getCookie: function (cname) {
       var name = cname + "=";
       var decodedCookie = decodeURIComponent(document.cookie);
       var ca = decodedCookie.split(";");
@@ -218,7 +213,7 @@ export default {
         }
       }
       return null;
-    }
+    },
   },
   created() {
     this.sessionToken =
@@ -229,7 +224,7 @@ export default {
   },
   beforeDestroy() {
     // this.setCookie("past-searches", JSON.stringify(this.pastSearches), 10);
-  }
+  },
 };
 </script>
 
